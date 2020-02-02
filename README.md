@@ -51,7 +51,7 @@ Or later by calling the method:
 
 This will add the attribute:
 
-    lvis.z:     2D numpy array of elevations of each waveform bin
+    lvis.z:    # 2D numpy array of elevations of each waveform bin
 
 
 The class includes the methods:
