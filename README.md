@@ -5,7 +5,7 @@ This contains the files needed for the 2020 OOSA assignment. LVIS data can be do
 
 ## lvisClass.py
 
-A class to handle LVIS data. This class reads in LVIS data from a HDF5 file, stores it within the class, converts from the compressed elevation format and can return a selected waveform as a numpy array. Note that LVIS data is stored in WGS84 (EPSG:4326).
+A class to handle LVIS data. This class reads in LVIS data from a HDF5 file, stores it within the class. It also contains methods to convert from the compressed elevation format and return attribues as numpy arrays. Note that LVIS data is stored in WGS84 (EPSG:4326).
 
 The class is:
 
@@ -49,7 +49,9 @@ Or later by calling the method:
 
     x.setElevations()
 
+This will add the attribute:
 
+   x.z:     2D numpy arrat of elevations of each waveform bin
 
 
 The class includes the methods:

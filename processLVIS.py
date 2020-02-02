@@ -25,6 +25,8 @@ class proLVIS(lvisData):
     super().__init__(filename,setElev=setElev,minX=minX,maxX=maxX,minY=minY,maxY=maxY,onlyBounds=onlyBounds):
 
 
+  #######################################################
+
   def meanNoises(self,noiseBins):
     '''
     Calculates mean noise per waveform.
@@ -37,6 +39,20 @@ class proLVIS(lvisData):
       meanNoise[i]=np.mean(wave[0:noiseBins])  # add mean from slice
     return(meanNoise)
 
+  #######################################################
+
+  def estimateGround(self,sigThresh=3.5,statsLen=10):
+    '''
+    Processes waveforms to estimate ground
+    Only works for bare Earth. DO NOT USE IN TREES
+    '''
+    # determine number of empty bins
+    res=(self.z[0,0]-self.z[0,-1])/self.nBins
+    noiseBins=int(statsLen/res)
+    # 
+
+
+  #######################################################
 
   def reproject(self,inEPSG,outEPSG):
     '''
