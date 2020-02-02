@@ -36,7 +36,7 @@ There is an optional spatial subsetter for when dealing with large datasets.
 
 Where (x0,y0) is the bottom left coordinate of the area of interest and (x1,y1) is the top right.
 
-To help choose the bounds, the bounds only can be read from tbe file to save time and RAM:
+To help choose the bounds, the bounds only can be read from the file, to save time and RAM:
 
     lvisData(filename,onlyBounds=True)
 
