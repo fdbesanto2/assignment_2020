@@ -65,17 +65,18 @@ class tiffHandle():
 
     # open a dataset object
     ds=gdal.Open(filename)
-    # could use gdal.Warp to reproject?
+    # could use gdal.Warp to reproject if wanted?
+
     # read data from geotiff object
-    self.nX=ds.RasterXSize
-    self.nY=ds.RasterYSize
+    self.nX=ds.RasterXSize             # number of pixels in x direction
+    self.nY=ds.RasterYSize             # number of pixels in y direction
     # geolocation tiepoint
-    transform_ds = ds.GetGeoTransform()
-    self.xOrigin=transform_ds[0]
-    self.yOrigin=transform_ds[3]
-    self.pixelWidth=transform_ds[1]
-    self.pixelHeight=transform_ds[5]
-    # read data. Returns as a numpy array
+    transform_ds = ds.GetGeoTransform()# extract geolocation information
+    self.xOrigin=transform_ds[0]       # coordinate of x corner
+    self.yOrigin=transform_ds[3]       # coordinate of y corner
+    self.pixelWidth=transform_ds[1]    # resolution in x direction
+    self.pixelHeight=transform_ds[5]   # resolution in y direction
+    # read data. Returns as a 2D numpy array
     self.data=ds.GetRasterBand(1).ReadAsArray(0,0,self.nX,self.nY)
 
 

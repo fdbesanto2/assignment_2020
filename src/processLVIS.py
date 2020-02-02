@@ -20,7 +20,7 @@ class lvisGround(lvisData):
 
   #######################################################
 
-  def estimateGround(self,sigThresh=5,statsLen=10,minWidth=3,sWidth=0.5):
+  def estimateGround(self,threshScale=5,statsLen=10,minWidth=3,smooWidth=0.5):
     '''
     Processes waveforms to estimate ground
     Only works for bare Earth. DO NOT USE IN TREES
@@ -29,11 +29,11 @@ class lvisGround(lvisData):
     self.findStats(statsLen=statsLen)
 
     # set threshold
-    threshold=self.setThreshold(sigThresh)
+    threshold=self.setThreshold(threshScale)
 
 
     # remove background
-    self.denoise(threshold,minWidth=minWidth,sWidth=sWidth)
+    self.denoise(threshold,minWidth=minWidth,smooWidth=smooWidth)
 
     # find centre of gravity of remaining signal
     self.CofG()
@@ -41,11 +41,11 @@ class lvisGround(lvisData):
 
   #######################################################
 
-  def setThreshold(self,sigThresh):
+  def setThreshold(self,threshScale):
     '''
     Set a noise threshold
     '''
-    threshold=self.meanNoise+sigThresh*self.stdevNoise
+    threshold=self.meanNoise+threshScale*self.stdevNoise
     return(threshold)
 
 
@@ -55,6 +55,9 @@ class lvisGround(lvisData):
     '''
     Find centre of gravity of denoised waveforms
     '''
+
+    # allocate space for ground elevation
+    self.zG=np.full(self.nWaves,-999.9)  # no data flag for now
 
     from sys import exit
     print("CofG function not finished. Use online resources to finish")
@@ -99,7 +102,7 @@ class lvisGround(lvisData):
 
   ##############################################
 
-  def denoise(self,threshold,sWidth=0.5,minWidth=3):
+  def denoise(self,threshold,smooWidth=0.5,minWidth=3):
     '''
     Denoise waveform data
     '''
@@ -128,7 +131,7 @@ class lvisGround(lvisData):
             self.denoised[i,binList[j]]=0.0   # if not, set to zero
 
       # smooth
-      self.denoised[i]=gaussian_filter1d(self.denoised[i],sWidth/res)
+      self.denoised[i]=gaussian_filter1d(self.denoised[i],smooWidth/res)
 
 
 #############################################################

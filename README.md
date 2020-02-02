@@ -5,7 +5,7 @@ This contains the files needed for the 2020 OOSA assignment. LVIS data can be do
 
 ## lvisClass.py
 
-A class to handle LVIS data. This class reads in LVIS data from a HDF5 file, stores it within the class. It also contains methods to convert from the compressed elevation format and return attribues as numpy arrays. Note that LVIS data is stored in WGS84 (EPSG:4326).
+A class to handle LVIS data. This class reads in LVIS data from a HDF5 file, stores it within the class. It also contains methods to convert from the compressed elevation format and return attributes as numpy arrays. Note that LVIS data is stored in WGS84 (EPSG:4326).
 
 The class is:
 
@@ -51,7 +51,7 @@ Or later by calling the method:
 
 This will add the attribute:
 
-   x.z:     2D numpy arrat of elevations of each waveform bin
+    x.z:     2D numpy arrat of elevations of each waveform bin
 
 
 The class includes the methods:
@@ -73,13 +73,48 @@ The class includes the methods:
     x1=(bounds[2]-minX)/2+minX
     y1=(bounds[3]-minY)/2+minY
     # read data
-    x=lvisData(filename,minX=x0,minY=y0,maxX=x1,maxY=y1)
-    x.setElevations()
+    lvis=lvisData(filename,minX=x0,minY=y0,maxX=x1,maxY=y1)
+    lvis.setElevations()
 
 This will find the data's bounds, read the bottom left quarter of it in to RAM, then set the elevation arrays. The data is now ready to be processed
 
 
 ## processLVIS.py
 
-Includes a class with methods to process LVIS data.
+Includes a class with methods to process LVIS data. This inherits from **lvisData** in *lvisClass.py*. The initialiser is not overwritten and expects an LVIS HDF5 filename. The following methods are added:
+
+* estimateGround():    Processes the waveforms and z arrays set above to populate self.zG
+* reproject():         Reprojects horizontal coordinates
+* findStats():         Used by estimateGround()
+* denoise(thresh):     Used by estimateGround()
+
+Some parameters are provided, but in all cases the defaults should be suitable. Further information on the signal processing steps and variable names can be found in [this](https://www.sciencedirect.com/science/article/pii/S0034425716304205) paper.
+
+
+### Usage example
+
+    from processLVIS import lvisGround
+    lvis=lvisGround(filename)
+    lvis.setElevations()
+    lvis.estimateGround()
+
+Note that the estimateGround() method can take a long time. It is recommended to perform time tests with a subset of data before applying to a complete file. This will produce an array of ground elevations contained in:
+
+    lvis.zG
+
+
+## lvisExample.py
+
+Contains an example of how to call processLVIS.py on a 15th of a dataset. Intended for testing only. It could form the centre of a batch loop. It is a simple script with no options.
+
+
+## handleTiff.py
+
+Examples of how to write and read a geotiff embedded within a class. This is not a complete script, has no initialiser and so will not run in its current form.
+
+
+* writeTiff(data):     writes raster data to a geotiff (*data* class needs modifying)
+* writeTiff(filename): reads the geotiff in *filename* to a numpy array with metadata
+
+Note that geotiffs read the y axis from the top, so be careful when unpacking or packing data, otherwise the z axis will be flipped.
 
