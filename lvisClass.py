@@ -16,7 +16,7 @@ class lvisData(object):
   LVIS data handler
   '''
 
-  def __init__(self,filename,nRead=-1,sInd=0,setElev=0):
+  def __init__(self,filename,setElev=False,minX=-100000000,maxX=100000000,minY=-1000000000,maxY=100000000,onlyBounds=False):
     '''
     Class initialiser. Calls a function
     to read "nRead" waveforms, starting 
@@ -25,45 +25,63 @@ class lvisData(object):
     elevations to arrays of elevation.
     '''
     # call the file reader and load in to the self
-    self.waves,self.lon,self.lat,self.nWaves,self.nBins,self.lZN,self.lZ0,self.lfid,self.shotN=lvisData.readLVIS(filename,nRead,sInd)
-    if(setElev==1):     # to save time, only read elev if wanted
-      lvisData.setElevations(self)
+    self.readLVIS(filename,minX,minY,maxX,maxY,onlyBounds)
+    if(setElev):     # to save time, only read elev if wanted
+      self.setElevations()
 
 
   ###########################################
 
-  def readLVIS(filename,nRead,sInd):
+  def readLVIS(self,filename,minX,minY,maxX,maxY,onlyBounds):
     '''
     Read LVIS data from file
     '''
     # open file for reading
     f=h5py.File(filename,'r')
-    # determine number of waveforms so we can decide how many to read
-    temp=np.array(f['LFID'])
-    if((nRead<0)|(temp.shape[0]<(nRead+sInd))):
-      nRead=temp.shape[0]-sInd
-    print("Reading",nRead,"waveforms from",filename)
+    # determine how many bins
+    self.nBins=f['RXWAVE'].shape[1]
+    # read coordinates for subsetting
+    lon0=np.array(f['LON0'])       # longitude of waveform top
+    lat0=np.array(f['LAT0'])       # lattitude of waveform top
+    lonN=np.array(f['LON'+str(self.nBins-1)]) # longitude of waveform bottom
+    latN=np.array(f['LAT'+str(self.nBins-1)]) # lattitude of waveform bottom
+    # find a single coordinate per footprint
+    tempLon=(lon0+lonN)/2.0
+    tempLat=(lat0+latN)/2.0
+
+    # write out bounds and leave if needed
+    if(onlyBounds):
+      self.lon=tempLon
+      self.lat=tempLat
+      self.bounds=self.dumpBounds()
+      return
+
+    # dertermine which are in region of interest
+    useInd=np.where((tempLon>=minX)&(tempLon<maxX)&(tempLat>=minY)&(tempLat<maxY))
+    if(len(useInd)>0):
+      useInd=useInd[0]
+
+    if(len(useInd)==0):
+      print("No data contained in that region")
+      return
+
+    # save the subset of all data
+    self.nWaves=len(useInd)
+    self.lon=tempLon[useInd]
+    self.lat=tempLat[useInd]
+
     # load sliced arrays, to save RAM
-    lfid=temp[sInd:nRead+sInd]          # the LVIS flight ID, a label
-    lShot=np.array(f['SHOTNUMBER'][sInd:nRead+sInd])   # the LVIS shot number, a label
-    waves=np.array(f['RXWAVE'][sInd:nRead+sInd])       # the recieved waveforms. The data
-    # store the array dimensions for ease of access
-    nWaves=nRead
-    nBins=waves.shape[1]
+    self.lfid=np.array(f['LFID'])[useInd]          # LVIS flight ID number
+    self.lShot=np.array(f['SHOTNUMBER'])[useInd]   # the LVIS shot number, a label
+    self.waves=np.array(f['RXWAVE'])[useInd]       # the recieved waveforms. The data
+    self.nBins=self.waves.shape[1]
     # these variables will be converted to easier variables
-    lZN=np.array(f['Z1023'][sInd:nRead+sInd])       # The elevation of the waveform bottom
-    lZ0=np.array(f['Z0'][sInd:nRead+sInd])          # The elevation of the waveform top
-    lon0=np.array(f['LON0'][sInd:nRead+sInd])       # longitude of waveform top
-    lat0=np.array(f['LAT0'][sInd:nRead+sInd])       # lattitude of waveform top
-    lon1023=np.array(f['LON1023'][sInd:nRead+sInd]) # longitude of waveform bottom
-    lat1023=np.array(f['LAT1023'][sInd:nRead+sInd]) # lattitude of waveform bottom
+    self.lZN=np.array(f['Z'+str(self.nBins-1)])[useInd]       # The elevation of the waveform bottom
+    self.lZ0=np.array(f['Z0'])[useInd]          # The elevation of the waveform top
     # close file
     f.close()
-    # convert the above for ease
-    lon=(lon0+lon1023)/2.0
-    lat=(lat0+lat1023)/2.0
-    # return arrays to initialiser
-    return(waves,lon,lat,nWaves,nBins,lZN,lZ0,lfid,lShot)
+    # return to initialiser
+    return
 
 
   ###########################################
@@ -87,6 +105,23 @@ class lvisData(object):
     Return a single waveform
     '''
     return(self.z[ind],self.waves[ind])
+
+
+  ###########################################
+
+  def dumpCoords(self):
+     '''
+     Dump coordinates
+     '''
+     return(self.lon,self.lat)
+
+  ###########################################
+
+  def dumpBounds(self):
+     '''
+     Dump bounds
+     '''
+     return(np.min(self.lon),np.min(self.lat),np.max(self.lon),np.max(self.lat))
 
 
 ###########################################
