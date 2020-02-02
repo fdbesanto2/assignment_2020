@@ -27,12 +27,12 @@ The data is stored as the variables:
 The data should be read as:
 
     from lvisClass import lvisData
-    x=lvisData(filename)
+    lvis=lvisData(filename)
 
 
 There is an optional spatial subsetter for when dealing with large datasets.
 
-    x=lvisData(filename,minX=x0,minY=y0,maxX=x1,maxX=x1)
+    lvis=lvisData(filename,minX=x0,minY=y0,maxX=x1,maxX=x1)
 
 Where (x0,y0) is the bottom left coordinate of the area of interest and (x1,y1) is the top right.
 
@@ -43,15 +43,15 @@ To help choose the bounds, the bounds only can be read from the file, to save ti
 
 The elevations can be set on reading:
 
-    x=lvisData(filename,seteElev=True)
+    lvis=lvisData(filename,seteElev=True)
 
 Or later by calling the method:
 
-    x.setElevations()
+    lvis.setElevations()
 
 This will add the attribute:
 
-    x.z:     2D numpy arrat of elevations of each waveform bin
+    lvis.z:     2D numpy array of elevations of each waveform bin
 
 
 The class includes the methods:
