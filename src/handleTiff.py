@@ -58,7 +58,7 @@ class tiffHandle():
 
   ########################################
 
-  def writeTiff(self,filename,epsg=27700):
+  def readTiff(self,filename,epsg=27700):
     '''
     Read a geotiff in to RAM
     '''

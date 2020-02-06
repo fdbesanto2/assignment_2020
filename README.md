@@ -114,7 +114,7 @@ Examples of how to write and read a geotiff embedded within a class. This is not
 
 
 * writeTiff(data):     writes raster data to a geotiff (*data* class needs modifying)
-* writeTiff(filename): reads the geotiff in *filename* to a numpy array with metadata
+* readTiff(filename): reads the geotiff in *filename* to a numpy array with metadata
 
 Note that geotiffs read the y axis from the top, so be careful when unpacking or packing data, otherwise the z axis will be flipped.
 
